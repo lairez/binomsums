@@ -25,3 +25,10 @@ License
 See the file LICENSE for more information.
 
 
+Installation
+------------
+
+1. Execute ```make```, this produces the file ```binomsums.mla```.
+2. Check that the variable ```libname``` in Maple contains the path to ```binomsums.mla``` or to its parent directory.
+3. Load the package in Maple with ```with(BinomSums);```
+
