@@ -20,7 +20,7 @@ Do not hesitate to submit bug report of pull requests.
 License
 -------
 
-*BinomSums* is released under the terms of MIT license.
+*BinomSums* is released under the terms of the MIT license.
 
 See the file LICENSE for more information.
 
