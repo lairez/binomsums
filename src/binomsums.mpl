@@ -522,7 +522,7 @@ end proc;
 #
 # [Implementation using hermitered and Rothstein-Tragger resutant
 #   for the residue computation]
-ratres := proc(R, v, ord)
+ratres := proc(R :: ratpol, v :: name, ord :: list(name))
   local Rn, F, tot, f, ioo, Q, res, n;
 
   if type(R, `+`) then

@@ -13,8 +13,7 @@ Warning
 -------
 
 *This is a very preliminary implementation.*
-It contains bugs very probably. It is provided *as is*.
-
+It is likely to contain bugs. It is provided *as is*.
 Do not hesitate to submit bug report of pull requests.
 
 License
@@ -73,31 +72,54 @@ all bound by a `Sum`.
 
 ```
 S1 := Binomial(n,k)^2*Multinomial([n,k]);
-```
 
-```
-S2 := Sum(n*t^n, n=0..infinity);
-```
+S2 := Sum(t^n*Sum(Binomial(n,k)^2, k=0..n), n=0..infinity);
 
-```
 S3 := Sum(Sum(x^n*y^m*Binomial(n+2*m, n-1), n=0..infinity), m=0..infinity);
+
+S4 := Sum(t^n*Sum(Binomial(n,n-k), k=0..n), n=0..infinity);
 ```
 
-Note that `S2` and `S3` a generating functions.
+
+Note that `S2` and `S3` are generating functions.
 
 ## Description of the functions
 
+### `sumtores(S :: <gfun>, v :: name, [geomred = false]) -> ratpoly, list(name)`
 
-### `sumtores(S :: <gfun>, v :: name, params :: set(name)) -> ratpoly, list(name)`
-
-Returns a rational function `R` and a list of names.
+Returns a rational function `R` and a list of names `ord`.
 
 The variables in `R` are the continuous variables in `S` and `v[1]`, `v[2]`,
-etc. The set of variables `params` indicates the continuous variables of `S`
-that are considered to be *small*.
+etc.
 
+The generating function `S` is the residue of `R` with respect to the `v[i]`'s.
+The list `ord` gives, by ascending order, the order of the variables defining
+the iterated Laurent series field in which the residue is defined (see the
+paper for definition).
 
+`sumtores` fails if it does not find an order on the variables that makes the
+infinite sums converge.
 
+If `geomred=false` is given, then the *geometric reduction* (see the paper for
+definition) is not performed.
+
+#### Examples
+
+```
+> sumtores(S3, u, geomred = false);                                          
+                             -1 + u[1]
+                  - ---------------------------, [y, x, u[1]]
+                          2
+                    (-u[1]  + y) (x + u[1] - 1)
+
+> sumtores(S3, u);                 
+                                  x
+                           ----------------, [y, x]
+                            2
+                           x  - 2 x - y + 1
+> sumtores(S4, u);                                                  
+Error, (in solvecons) inconsistent
+```
 
 ### `sumtoct(S :: <binomial sum>, v :: name) -> <supergeom>` 
 
@@ -110,8 +132,7 @@ to the variables `v[i]`'s, in any order.
 
 `T` will contain an extra variable `_W[_k]` for each infinite sum
 `k=a..infinity`. They are used internally to determine an order on the
-variables that makes things converge. After finding this order, the extra
-variables are evaluated to 1.
+variables that makes things converge.
 
 
 #### Examples
@@ -133,23 +154,44 @@ variables are evaluated to 1.
 ```
 
 
+#### `ratres(R :: ratpol, v :: name, ord :: list(name)) -> ratpoly or FAIL`
 
-#### `computesum`
+Returns `FAIL` or a rational function `T` that is the residue of `R` with
+respect to the variable `v` in the iterated Laurent series field defined by the
+ordering `ord`. It implements Algorithm 3 of the paper.
 
-#### `geomred`
+### `geomred(R :: ratpoly, ord :: list(name), params :: set(name)) -> ratpoly`
 
-#### `geomredall`
+Tries to apply `ratres` with all the variables of `ord` that are not in
+`params`, one after the other, and returns the result.
 
-#### `hermitered`
+So it returns a rational function `T` with less variables, hopefully, than `R`
+such that its residue with respect to the variables in `R` that are not in
+`params` is equal to the residue of `S` with respect to the variables in `S`
+that are not in `params`.
 
-#### `ratres`
+### `geomredall(R :: ratpoly, ord :: list(name), params :: set(name)) ->
+set(ratpoly)`
 
-#### `rser`
+The same as `geomred` but tries every possible order to eliminate the
+variables.
 
-#### `sumtoct`
+### `computesum(S :: <binomial sum>, maxn :: integer)`
+
+Replace `infinity` by `maxn` in `S`, and then compute the sum.  Useful for
+checking that things are consistent.
+
+### `rser(R :: ratpoly, vars :: list(name), n :: posint) -> truncated power series`
+
+Compute the first `n` terms of the power series expansion of the residue of `R`
+with respect to all the variables of `vars` except the first one.  The ordering
+of `vars` defines the iterated Laurent series field in which the computation
+takes place.  Useful for checking that things are consistent.
+
+### `addnewgf`
 
 
-#### `addnewgf`
+
 
 
 
