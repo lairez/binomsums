@@ -17,14 +17,14 @@ Table of Contents
   * [Binomial sums](#binomial-sums)
   * [Examples of binomial sums](#examples-of-binomial-sums)
   * [Description of the main functions](#description-of-the-main-functions)
-    * [sumtores(S :: &lt;gfun&gt;, v :: name, [geomred = false]) -&gt; ratpoly, list(name)](#sumtoress--gfun-v--name-geomred--false---ratpoly-listname)
-    * [ratres(R :: ratpol, v :: name, ord :: list(name)) -&gt; ratpoly or FAIL](#ratresr--ratpol-v--name-ord--listname---ratpoly-or-fail)
-    * [geomred(R :: ratpoly, ord :: list(name), params :: set(name)) -&gt; ratpoly](#geomredr--ratpoly-ord--listname-params--setname---ratpoly)
-    * [computesum(S :: &lt;binomial sum&gt;, maxn :: integer)](#computesums--binomial-sum-maxn--integer)
-    * [rser(R :: ratpoly, vars :: list(name), n :: posint) -&gt; truncated power series](#rserr--ratpoly-vars--listname-n--posint---truncated-power-series)
+    * [sumtores](#sumtores)
+    * [ratres](#ratres)
+    * [geomred](#geomred)
+    * [computesum](#computesum)
+    * [rser](#rser)
   * [Other functions](#other-functions)
-    * [geomredall(R :: ratpoly, ord :: list(name), params :: set(name)) -&gt; set(ratpoly)](#geomredallr--ratpoly-ord--listname-params--setname---setratpoly)
-    * [sumtoct(S :: &lt;binomial sum&gt;, v :: name) -&gt; &lt;supergeom&gt;](#sumtocts--binomial-sum-v--name---supergeom)
+    * [geomredall](#geomredall)
+    * [sumtoct](#sumtoct)
     * [addnewgf](#addnewgf)
 
 
@@ -104,7 +104,9 @@ Note that `S2`, `S3` and `S4` are generating functions.
 
 ### Description of the main functions
 
-#### `sumtores(S :: <gfun>, v :: name, [geomred = false]) -> ratpoly, list(name)`
+#### `sumtores`
+
+`sumtores(S :: <gfun>, v :: name, [geomred = false]) -> ratpoly, list(name)`
 
 Returns a rational function `R` and a list of names `ord`.
 
@@ -140,7 +142,11 @@ Error, (in solvecons) inconsistent
 
 ```
 
-#### `ratres(R :: ratpol, v :: name, ord :: list(name)) -> ratpoly or FAIL`
+#### `ratres`
+
+```
+ratres(R :: ratpol, v :: name, ord :: list(name)) -> ratpoly or FAIL
+```
 
 Returns `FAIL` or a rational function `T` that is the residue of `R` with
 respect to the variable `v` in the iterated Laurent series field defined by the
@@ -155,7 +161,9 @@ ordering `ord`. It implements Algorithm 3 of the paper.
                                    19 t + 1
 ```
 
-#### `geomred(R :: ratpoly, ord :: list(name), params :: set(name)) -> ratpoly`
+#### `geomred`
+
+```geomred(R :: ratpoly, ord :: list(name), params :: set(name)) -> ratpoly```
 
 Tries to apply `ratres` with all the variables of `ord` that are not in
 `params`, one after the other, and returns the result.
@@ -165,7 +173,9 @@ such that its residue with respect to the variables in `R` that are not in
 `params` is equal to the residue of `S` with respect to the variables in `S`
 that are not in `params`.
 
-#### `computesum(S :: <binomial sum>, maxn :: integer)`
+#### `computesum`
+
+`computesum(S :: <binomial sum>, maxn :: integer)`
 
 Replace `infinity` by `maxn` in `S`, and then compute the sum.  Useful for
 checking that things are consistent.
@@ -177,7 +187,9 @@ checking that things are consistent.
            104959 t  + 11253 t  + 1251 t  + 147 t  + 19 t  + 3 t + 1
 ```
 
-#### `rser(R :: ratpoly, vars :: list(name), n :: posint) -> truncated power series`
+#### `rser`
+
+`rser(R :: ratpoly, vars :: list(name), n :: posint) -> truncated power series`
 
 Compute the first `n` terms of the power series expansion of the residue of `R`
 with respect to all the variables of `vars` except the first one.  The ordering
@@ -194,12 +206,16 @@ takes place.  Useful for checking that things are consistent.
 
 ### Other functions
 
-#### `geomredall(R :: ratpoly, ord :: list(name), params :: set(name)) -> set(ratpoly)`
+#### `geomredall`
+
+`geomredall(R :: ratpoly, ord :: list(name), params :: set(name)) -> set(ratpoly)`
 
 The same as `geomred` but tries every possible order to eliminate the
 variables.
 
-#### `sumtoct(S :: <binomial sum>, v :: name) -> <supergeom>` 
+#### `sumtoct`
+
+`sumtoct(S :: <binomial sum>, v :: name) -> <supergeom>` 
 
 Returns `T :: <supergeom>`.
 
