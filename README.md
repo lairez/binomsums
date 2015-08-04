@@ -47,10 +47,10 @@ Table of Contents
       * [sumtores(S :: &lt;gfun&gt;, v :: name, [geomred = false]) -&gt; ratpoly, list(name)](#sumtoress--gfun-v--name-geomred--false---ratpoly-listname)
       * [ratres(R :: ratpol, v :: name, ord :: list(name)) -&gt; ratpoly or FAIL](#ratresr--ratpol-v--name-ord--listname---ratpoly-or-fail)
       * [geomred(R :: ratpoly, ord :: list(name), params :: set(name)) -&gt; ratpoly](#geomredr--ratpoly-ord--listname-params--setname---ratpoly)
-      * [geomredall(R :: ratpoly, ord :: list(name), params :: set(name)) -&gt; set(ratpoly)](#geomredallr--ratpoly-ord--listname-params--setname---setratpoly)
       * [computesum(S :: &lt;binomial sum&gt;, maxn :: integer)](#computesums--binomial-sum-maxn--integer)
       * [rser(R :: ratpoly, vars :: list(name), n :: posint) -&gt; truncated power series](#rserr--ratpoly-vars--listname-n--posint---truncated-power-series)
     * [Other functions](#other-functions)
+      * [geomredall(R :: ratpoly, ord :: list(name), params :: set(name)) -&gt; set(ratpoly)](#geomredallr--ratpoly-ord--listname-params--setname---setratpoly)
       * [sumtoct(S :: &lt;binomial sum&gt;, v :: name) -&gt; &lt;supergeom&gt;](#sumtocts--binomial-sum-v--name---supergeom)
       * [addnewgf](#addnewgf)
 
@@ -170,10 +170,6 @@ such that its residue with respect to the variables in `R` that are not in
 `params` is equal to the residue of `S` with respect to the variables in `S`
 that are not in `params`.
 
-### `geomredall(R :: ratpoly, ord :: list(name), params :: set(name)) -> set(ratpoly)`
-
-The same as `geomred` but tries every possible order to eliminate the
-variables.
 
 ### `computesum(S :: <binomial sum>, maxn :: integer)`
 
@@ -206,6 +202,12 @@ takes place.  Useful for checking that things are consistent.
 
 
 ## Other functions
+
+
+### `geomredall(R :: ratpoly, ord :: list(name), params :: set(name)) -> set(ratpoly)`
+
+The same as `geomred` but tries every possible order to eliminate the
+variables.
 
 
 ### `sumtoct(S :: <binomial sum>, v :: name) -> <supergeom>` 
