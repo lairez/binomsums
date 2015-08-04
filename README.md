@@ -1,10 +1,9 @@
 BinomSums
 =========
 
-*BinomSums* is a package, for the computer algebra system Maple,
-providing functions to handle multiple binomial sums.
-It implements the algorithms described in the paper
-(soon on the arXiv):
+*BinomSums* is a package, for the computer algebra system Maple 17 or later,
+providing functions to handle multiple binomial sums.  It implements the
+algorithms described in the paper (soon on the arXiv):
 
 > A. Bostan, P. Lairez, and B. Salvy, “Multiple binomial sums”
 
@@ -14,7 +13,7 @@ Warning
 
 *This is a very preliminary implementation.*
 It is likely to contain bugs. It is provided *as is*.
-Do not hesitate to submit bug report of pull requests.
+Do not hesitate to submit bug reports of pull requests.
 
 License
 -------
@@ -22,6 +21,32 @@ License
 *BinomSums* is released under the terms of the MIT license.
 
 See the file LICENSE for more information.
+
+
+Table of Contents
+=================
+
+  * [BinomSums](#binomsums)
+    * [Warning](#warning)
+    * [License](#license)
+  * [Table of Contents](#table-of-contents)
+    * [Installation](#installation)
+  * [Usage](#usage)
+    * [Binomial sums](#binomial-sums)
+    * [Examples of binomial sums](#examples-of-binomial-sums)
+    * [Description of the main functions](#description-of-the-main-functions)
+      * [sumtores(S :: &lt;gfun&gt;, v :: name, [geomred = false]) -&gt; ratpoly, list(name)](#sumtoress--gfun-v--name-geomred--false---ratpoly-listname)
+      * [ratres(R :: ratpol, v :: name, ord :: list(name)) -&gt; ratpoly or FAIL](#ratresr--ratpol-v--name-ord--listname---ratpoly-or-fail)
+      * [geomred(R :: ratpoly, ord :: list(name), params :: set(name)) -&gt; ratpoly](#geomredr--ratpoly-ord--listname-params--setname---ratpoly)
+      * [geomredall(R :: ratpoly, ord :: list(name), params :: set(name)) -&gt; set(ratpoly)](#geomredallr--ratpoly-ord--listname-params--setname---setratpoly)
+      * [computesum(S :: &lt;binomial sum&gt;, maxn :: integer)](#computesums--binomial-sum-maxn--integer)
+      * [rser(R :: ratpoly, vars :: list(name), n :: posint) -&gt; truncated power series](#rserr--ratpoly-vars--listname-n--posint---truncated-power-series)
+    * [Other functions](#other-functions)
+      * [sumtoct(S :: &lt;binomial sum&gt;, v :: name) -&gt; &lt;supergeom&gt;](#sumtocts--binomial-sum-v--name---supergeom)
+      * [addnewgf](#addnewgf)
+
+
+
 
 
 Installation
@@ -35,11 +60,10 @@ Installation
 
 ## Binomial sums
 
-A *binomial sum* is a Maple expression mode from the following rules.  For
+A *binomial sum* is a Maple expression made with the following rules.  For
 simplicity, let us assume that Maples indeterminates split in two sets: the
 continuous variables and the discrete ones. An `<integer form>` is a polynomial
 of degree one in the discrete variables, with integer coefficients. 
-
 
 A *supergeometric* sequence `<supergeom>` can be:
 
@@ -73,17 +97,17 @@ all bound by a `Sum`.
 ```
 S1 := Binomial(n,k)^2*Multinomial([n,k]);
 
-S2 := Sum(t^n*Sum(Binomial(n,k)^2, k=0..n), n=0..infinity);
+S2 := Sum(t^n*Sum(Binomial(n,k)^2*Multinomial([n,k]), k=0..infinity), n=0..infinity);
 
-S3 := Sum(Sum(x^n*y^m*Binomial(n+2*m, n-1), n=0..infinity), m=0..infinity);
+S3 := Sum(Sum(x^n*y^m*Binomial(n+2*m, m), n=0..infinity), m=0..infinity);
 
-S4 := Sum(t^n*Sum(Binomial(n,n-k), k=0..n), n=0..infinity);
+S4 := Sum(t^n*Sum(Binomial(n,n-k), k=0..infinity), n=0..infinity);
 ```
 
 
-Note that `S2` and `S3` are generating functions.
+Note that `S2`, `S3` and `S4` are generating functions.
 
-## Description of the functions
+## Description of the main functions
 
 ### `sumtores(S :: <gfun>, v :: name, [geomred = false]) -> ratpoly, list(name)`
 
@@ -106,20 +130,83 @@ definition) is not performed.
 #### Examples
 
 ```
-> sumtores(S3, u, geomred = false);                                          
-                             -1 + u[1]
-                  - ---------------------------, [y, x, u[1]]
-                          2
-                    (-u[1]  + y) (x + u[1] - 1)
+> sumtores(S2, v);
+                                 1
+  ---------------------------------------------------------------, [t, v[1], v[2]]
+  (v[1] v[2] - v[1] - v[2]) t + v[1] v[2] (-1 + v[2]) (-1 + v[1])
 
-> sumtores(S3, u);                 
-                                  x
-                           ----------------, [y, x]
-                            2
-                           x  - 2 x - y + 1
-> sumtores(S4, u);                                                  
+> sumtores(S3, v);
+                                v[1]
+                  ---------------------------------, [x, y, v[1]]
+                  (y + v[1] (-1 + v[1])) (x - v[1])
+
+> sumtores(S4, v);
 Error, (in solvecons) inconsistent
+
 ```
+
+### `ratres(R :: ratpol, v :: name, ord :: list(name)) -> ratpoly or FAIL`
+
+Returns `FAIL` or a rational function `T` that is the residue of `R` with
+respect to the variable `v` in the iterated Laurent series field defined by the
+ordering `ord`. It implements Algorithm 3 of the paper.
+
+#### Example
+
+```
+> ratres(1/(t*(1+z)^19+z-t), z, [t, z]);
+                                      1
+                                   --------
+                                   19 t + 1
+```
+
+### `geomred(R :: ratpoly, ord :: list(name), params :: set(name)) -> ratpoly`
+
+Tries to apply `ratres` with all the variables of `ord` that are not in
+`params`, one after the other, and returns the result.
+
+So it returns a rational function `T` with less variables, hopefully, than `R`
+such that its residue with respect to the variables in `R` that are not in
+`params` is equal to the residue of `S` with respect to the variables in `S`
+that are not in `params`.
+
+### `geomredall(R :: ratpoly, ord :: list(name), params :: set(name)) -> set(ratpoly)`
+
+The same as `geomred` but tries every possible order to eliminate the
+variables.
+
+### `computesum(S :: <binomial sum>, maxn :: integer)`
+
+Replace `infinity` by `maxn` in `S`, and then compute the sum.  Useful for
+checking that things are consistent.
+
+#### Example
+```
+> computesum(S2, 6); 
+                   6          5         4        3       2
+           104959 t  + 11253 t  + 1251 t  + 147 t  + 19 t  + 3 t + 1
+```
+
+### `rser(R :: ratpoly, vars :: list(name), n :: posint) -> truncated power series`
+
+Compute the first `n` terms of the power series expansion of the residue of `R`
+with respect to all the variables of `vars` except the first one.  The ordering
+of `vars` defines the iterated Laurent series field in which the computation
+takes place.  Useful for checking that things are consistent.
+
+
+#### Example
+```
+> rser(sumtores(S2, v), 7);
+                         2        3         4          5           6
+           1 + 3 t + 19 t  + 147 t  + 1251 t  + 11253 t  + 104959 t
+```
+
+
+
+
+## Other functions
+
 
 ### `sumtoct(S :: <binomial sum>, v :: name) -> <supergeom>` 
 
@@ -137,9 +224,8 @@ variables that makes things converge.
 
 #### Examples
 
-
 ```
-> sumtoct(S1, v);
+> sumtoct(S1, v);                                                                   
              (k + 1)     (n - k)           (k + 1)     (n - k)
 1/((1 - v[1])        v[1]        (1 - v[2])        v[2]        (1 - v[3] - v[4])
 
@@ -147,55 +233,18 @@ variables that makes things converge.
     v[3]  v[4] )
 
 > sumtoct(S2, v);
-                                     _W[_n] t
-                                  ---------------
-                                                2
-                                  (t _W[_n] - 1)
+- v[4] v[1] v[2] v[3]/((-v[1] v[2] v[3] + t _W[_n])
+
+    (_W[_k] v[1] v[2] - v[1] v[2] v[4] + v[1] v[4] + v[2] v[4] - v[4])
+
+    (-1 + v[3] + v[4]))
+
 ```
 
 
-#### `ratres(R :: ratpol, v :: name, ord :: list(name)) -> ratpoly or FAIL`
-
-Returns `FAIL` or a rational function `T` that is the residue of `R` with
-respect to the variable `v` in the iterated Laurent series field defined by the
-ordering `ord`. It implements Algorithm 3 of the paper.
-
-### `geomred(R :: ratpoly, ord :: list(name), params :: set(name)) -> ratpoly`
-
-Tries to apply `ratres` with all the variables of `ord` that are not in
-`params`, one after the other, and returns the result.
-
-So it returns a rational function `T` with less variables, hopefully, than `R`
-such that its residue with respect to the variables in `R` that are not in
-`params` is equal to the residue of `S` with respect to the variables in `S`
-that are not in `params`.
-
-### `geomredall(R :: ratpoly, ord :: list(name), params :: set(name)) ->
-set(ratpoly)`
-
-The same as `geomred` but tries every possible order to eliminate the
-variables.
-
-### `computesum(S :: <binomial sum>, maxn :: integer)`
-
-Replace `infinity` by `maxn` in `S`, and then compute the sum.  Useful for
-checking that things are consistent.
-
-### `rser(R :: ratpoly, vars :: list(name), n :: posint) -> truncated power series`
-
-Compute the first `n` terms of the power series expansion of the residue of `R`
-with respect to all the variables of `vars` except the first one.  The ordering
-of `vars` defines the iterated Laurent series field in which the computation
-takes place.  Useful for checking that things are consistent.
-
 ### `addnewgf`
 
-
-
-
-
-
-
+*TODO*
 
 
 
