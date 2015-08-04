@@ -3,13 +3,15 @@ BinomSums := module()
 option package;
 
 local
-  gfdict, gfdictcomp, gfnames, multinomial, packvars, geomsum,
-  sumtores1, solvecons, linearorder, slopes, asylt, inorout_base, ratres2,
-  geomsum_, simpfacts, simpfacts0 ;
+  gfdict, gfdictcomp, gfnames, multinomial, packvars, geomsum, solvecons,
+  linearorder, slopes, asylt, inorout_base, ratres2, geomsum_, simpfacts,
+  simpfacts0, SimpleImpl, isconvergent, asy, inorout, sumtores0 ;
 
 export
-  sumtores, SimpleImpl, addnewgf, isconvergent, rser, computesum, asy, inorout,
-  hermitered, ratres, geomred, geomredall, sumtoct;
+  sumtores, addnewgf, rser, computesum, hermitered, ratres, geomred, 
+  geomredall, sumtoct, `BinomSums/version`;
+
+  `BinomSums/version` := 0.11;
 
   # This module provides a simple implementation of the computation of integral
   # representation of binomial sums.
@@ -26,7 +28,7 @@ export
     sumtores := proc(U, v :: name, num :: integer := 1)
       local L, first, rest, rat_first, num_first, i;
       if type(U, `+`) then
-        return normal(map(sumtores1, U, v, num));
+        return normal(map(sumtores, U, v, num));
       elif type(U, `*`) or type(U, `^`(anything, posint)) then
         first := op(1, U);   # the first factor
         if type(U, `*`) then
@@ -34,22 +36,21 @@ export
         else
           rest := first^(op(2, U) - 1);
         end if;
-        rat_first := sumtores1(first, v, num);
+        rat_first := sumtores(first, v, num);
         num_first := max(num, op(map(op, indets(rat_first, specindex(v)))));
-        return normal(rat_first*sumtores1(rest, v, num_first + 1));
+        return normal(rat_first*sumtores(rest, v, num_first + 1));
       elif type(U, specfunc(Delta)) then
         return v[num]^op(U);
       elif type(U, specfunc(Binomial)) then
         return (1+v[num])^op(1, U)/v[num]^(op(2, U)+1); 
       elif type(U, specfunc(Sum)) then
-        return normal(sum(expand(sumtores1(op(1, U), v, num)), op(2, U)));
+        return normal(sum(expand(sumtores(op(1, U), v, num)), op(2, U)));
       else
         return U/v[num];
       end if;
     end proc;
 
   end module:
-
 
 
 #### SUM TO PERIOD
@@ -358,19 +359,20 @@ end proc;
 
 # Input :
 #   - R, a rational function
-#   - params, variables assumed to be small
+#   - params, a list of variables
 #
 # Assume that R is a Laurent formal series w.r.t. variables _W[1],...,_W[r]
 # Let T = sum of coefficients of this series
 #
 # If there exist an order such that T is convergent, then returns T and that order.
 # If not, fails
-isconvergent := proc(R :: ratpoly, params :: Or(list(name), set(name)))
-  local svars, avars, L, ct, co, mord, res, cons, G, ord, den, facts, f; 
+#
+# params is an indication on the way the parameters should be ordered.
+isconvergent := proc(R :: ratpoly, params :: list(name) := [])
+  local svars, L, ct, co, mord, res, cons, G, ord, den, facts, f; 
   
   svars := indets(R, specindex(_W));
-  avars := indets(R) minus svars minus params;
-  L := [ op(params), op(avars) ];
+  L := [ op(params), op(indets(R) minus svars minus convert(params, set)) ];
   mord :=  plex(op(L));
   cons := {};
 
@@ -381,7 +383,7 @@ isconvergent := proc(R :: ratpoly, params :: Or(list(name), set(name)))
     cons := cons union {seq( Groebner[TrailingTerm](numer(c), mord)[2]/Groebner[TrailingTerm](denom(c), mord)[2], c in co)};
   end do;
 
-  G := solvecons(cons, false, params);
+  G := solvecons(cons, false, {});
   ord := remove(`=`, linearorder(G), 1);
 
   mord :=  plex(op(ord));
@@ -402,7 +404,6 @@ end proc;
 # Input :
 #   - S, a binomial sum
 #   - name, a name
-#   - params a set of small parameters
 #
 # Output :  R, L
 #   - R, a rational function
@@ -411,11 +412,11 @@ end proc;
 # The list L gives an order on the variables.
 # S is the residue of R with respect to the variables in L that are not
 # parameters
-sumtores1 := proc(S, name, params)
+sumtores0 := proc(S, name)
   local R, vars, x;
   R := sumtoct(S, name);
   vars := select(has, indets(R), name);
-  return isconvergent(normal(R/mul(x, x in vars)), params);
+  return isconvergent(normal(R/mul(x, x in vars)));
 end proc;
 
 
@@ -629,7 +630,6 @@ end proc;
 # Input :
 #   - S, a binomial sum
 #   - name, a name
-#   - params a set of small parameters
 #
 # Output :  R, L
 #   - R, a rational function
@@ -638,16 +638,23 @@ end proc;
 # The list L gives an order on the variables.
 # S is the residue of R with respect to the variables in L that are not
 # parameters
-sumtores := proc(S, name, params)
-  local R, ord;
+sumtores := proc(S, name)
+  local R, ord, params, flag;
 
-  R, ord := sumtores1(S, name, params);
-  R := geomred(R, ord, params);
-  ord := select(has, ord, indets(R));
+  R, ord := sumtores0(S, name);
+  params := indets(R) intersect indets(S);
+  
+  flag := true;
+  hasoption([_rest], 'geomred' = boolean, 'flag');
+  if flag then
+    R := geomred(R, ord, params);
+    ord := select(has, ord, indets(R));
+  end if;
 
   return op(subs(packvars([ord], name)[1], [R,ord]));
 end proc;
 
 
 end module:
+
 
