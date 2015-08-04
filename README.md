@@ -34,7 +34,7 @@ Installation
 
 
 Table of Contents
-=================
+-----------------
 
   * [BinomSums](#binomsums)
     * [Warning](#warning)
