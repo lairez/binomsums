@@ -103,7 +103,11 @@ addnewgf(Delta,
 
 multinomial := proc( x :: list(numeric))
   if nops(x) <= 1 then
-    return 1;
+    if x[1] < 0 then
+      return 0;
+    else
+      return 1;
+    end if;
   elif x[1] < 0 then
     return 0;
   else
@@ -522,7 +526,7 @@ end proc;
 #
 # [Implementation using hermitered and Rothstein-Tragger resutant
 #   for the residue computation]
-ratres := proc(R :: ratpol, v :: name, ord :: list(name))
+ratres := proc(R :: ratpoly, v :: name, ord :: list(name))
   local Rn, F, tot, f, ioo, Q, res, n;
 
   if type(R, `+`) then
