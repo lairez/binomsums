@@ -3,9 +3,10 @@ BinomSums
 
 *BinomSums* is a package, for the computer algebra system Maple 17 or later,
 providing functions to handle multiple binomial sums.  It implements the
-algorithms described in the paper (soon on the arXiv):
+algorithms described in the paper:
 
 > A. Bostan, P. Lairez, and B. Salvy, “Multiple binomial sums”
+> [arxiv:1510.07487](http://arxiv.org/abs/1510.07487)
 
 Table of Contents
 -----------------
