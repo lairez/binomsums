@@ -6,6 +6,7 @@ providing functions to handle multiple binomial sums.  It implements the
 algorithms described in the paper:
 
 > A. Bostan, P. Lairez, and B. Salvy, “Multiple binomial sums”
+
 > [arxiv:1510.07487](http://arxiv.org/abs/1510.07487)
 
 Table of Contents
