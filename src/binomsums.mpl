@@ -73,13 +73,30 @@ addnewgf := proc(name :: name, gf, comp)
   gfnames := gfnames union {name};
 end proc;
 
+# There are different definitions of the binomial.
+# Binomial(n,k) = coeff of x^k in the power series (1+x)^n
+# It is non-zero only if k ≥ 0. 
 addnewgf(Binomial,
-  ((v,n,k) -> 1/(1-v[1])^(k+1)/v[1]^(n-k)),
-  binomial);
-
-addnewgf(Binomial2,
   ((v,n,k) -> (1+v[1])^n/v[1]^(k)),
-  binomial);
+  (n,k) -> `if`(k>=0, binomial(n,k), 0));
+
+# binomial2(n, k) = binomial(n, n-k)
+# If Binomial2(n,k) and Binomial(n,k) are both non zero, their value coincide.
+# Maple's binomial evaluated at (n,k) is the non-zero element of {Binomial(n,k),Binomial2(n,k)}, if any.
+addnewgf(Binomial2,
+  ((v,n,k) -> (1+v[1])^n*v[1]^k/v[1]^n),
+  (n,k) -> `if`(n-k>=0, binomial(n,n-k), 0));
+
+# Binomial3(n,k) = Binomial2(n,k)
+# alternative definition.
+addnewgf(Binomial3,
+  ((v,n,k) -> 1/(1-v[1])^(k+1)/v[1]^(n-k)),
+  (n,k) -> `if`(n-k>=0, binomial(n,n-k), 0));
+
+# natbinomial(n,k) = binomial(n,k) if n ≥ 0 and k ≥ 0 and 0 otherwise.
+addnewgf(NatBinomial,
+  ((v,n,k) -> 1/(1-v[1]-v[2])^n/v[1]^k/v[2]^(n-k)),
+  (n,k) -> `if`(n >=0 and k >= 0, binomial(n,k), 0));
 
 addnewgf(Multinomial,
   ((v,L) -> 1/(1-add(v[i],i=1..nops(L)))/mul(v[i]^(L[i]),i=1..nops(L))),
