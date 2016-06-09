@@ -1,8 +1,8 @@
 # Strehl's identity. See §7.2.1 in “Multiple binomial sums”.
 
 # The identity is S1 = S2.
-S1 := Sum(z^n*Sum(Binomial(n,k)*Multinomial([n,k])*Sum(Binomial(k,j)^3, j=0..infinity), k=0..infinity), n=0..infinity);
-S2 := Sum(z^n*Sum(Binomial(n,k)^2*Binomial(n+k,k)^2, k=0..infinity), n=0..infinity);
+S1 := Sum(z^n*Sum(Binomial2(n,k)*Multinomial([n,k])*Sum(Binomial2(k,j)^3, j=0..infinity), k=0..infinity), n=0..infinity);
+S2 := Sum(z^n*Sum(Binomial2(n,k)^2*Binomial2(n+k,k)^2, k=0..infinity), n=0..infinity);
 
 # Quick check
 BinomSums[computesum](S1, 5) - BinomSums[computesum](S2, 5);
