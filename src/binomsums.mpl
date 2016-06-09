@@ -95,7 +95,7 @@ addnewgf(Binomial3,
 
 # natbinomial(n,k) = binomial(n,k) if n ≥ 0 and k ≥ 0 and 0 otherwise.
 addnewgf(NatBinomial,
-  ((v,n,k) -> 1/(1-v[1]-v[2])^n/v[1]^k/v[2]^(n-k)),
+  ((v,n,k) -> 1/(1-v[1]-v[2])/v[1]^k/v[2]^(n-k)),
   (n,k) -> `if`(n >=0 and k >= 0, binomial(n,k), 0));
 
 addnewgf(Multinomial,
