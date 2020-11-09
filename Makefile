@@ -1,4 +1,3 @@
-
 SRC = $(wildcard src/*.mpl)
 MLA = binomsums.mla
 
@@ -6,7 +5,7 @@ all: $(MLA)
 
 $(MLA) : $(SRC)
 	rm -f $(MLA)
-	maple -sq <<< 'march(create, "$(MLA)", 10);'
+	echo 'march(create, "$(MLA)", 10);' | maple -sq
 	maple -b $(MLA) -B -I src -D BUILD_MLA -w 4 -sq src/pack.mpl 
 
 test : all force
@@ -16,8 +15,6 @@ test : all force
 		maple -b $(MLA) -B -i test/init.mpl -s $$f | tee log/$$(basename $$f .tst).log | grep FAILED ;\
 		true; \
 	done
-                        
+
 force :
 	true
-	
-
